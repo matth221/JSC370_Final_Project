@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+
+<html lang="en" xml:lang="en">
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Christopher Matthew" />
+
+<meta name="date" content="2022-02-28" />
+
+<title>JSC370 Midterm Project</title>
+
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+<link rel="stylesheet" href="styles.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">JSC370 Final Project</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="page2.html">Interactive Visualizations</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/matth221">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="https://www.linkedin.com/in/toperper/">LinkedIn</a>
+</li>
+<li>
+  <a href="https://jsc370.github.io/jsc370-2022/">JSC370 Home</a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">JSC370 Midterm Project</h1>
+<h3 class="subtitle">Impact of smoking, alcohol consumption, and happiness on life expectancy around the world</h3>
+<h4 class="author">Christopher Matthew</h4>
+<h4 class="date">2022-02-28</h4>
+
+</div>
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#methods">Methods</a>
+<ul>
+<li><a href="#data-collection">Data Collection</a></li>
+<li><a href="#data-wrangling">Data Wrangling</a></li>
+<li><a href="#linear-modelling">Linear Modelling</a></li>
+<li><a href="#machine-learning">Machine Learning</a></li>
+</ul></li>
+<li><a href="#results">Results</a>
+<ul>
+<li><a href="#linear-modelling-1">Linear Modelling</a></li>
+</ul></li>
+<li><a href="#conclusion">Conclusion</a>
+<ul>
+<li><a href="#summary">Summary</a></li>
+<li><a href="#limitation-and-strengths">Limitation and Strengths</a></li>
+</ul></li>
+<li><a href="#appendix">Appendix</a>
+<ul>
+<li><a href="#appendix-1">Appendix 1</a></li>
+<li><a href="#appendix-2">Appendix 2</a></li>
+</ul></li>
+<li><a href="#references">References</a></li>
+</ul>
+</div>
+
+<div style="page-break-after: always;"></div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>How does smoking, alcohol consumption, and happiness effect life expectancy at birth of general world population? It is a common knowledge that smoking, drinking excessive amount of alcohol, or being sad and depressed will negatively impact your health but just how detrimental they will affect your life. This paper will emphasize how life expectancy get affected across various quantities of smoking, alcohol consumption, and happiness in the countries of the world and how I am going to generalize the results to the general population.</p>
+<p>Even though smoking reduces someone’s average life expectancy by 2.5 years in Canada (Manuel, D. G., 2012, p.1), alcohol reduces it by 1.5 years in Europe (Janssen et al., 2021, p.937), USA drink plenty of alcohol and smoke, yet they have a relatively high life expectancy. In addition, compared to very happy people, the risk of death over the follow-up period is 14% (95% CI 1.06 – 1.22) higher among those who are not happy (Lawrence et al., 2015). Interestingly, intake of both smoking and alcohol only contributes to -0.07 years in life expectancy of Nordic countries (Östergren et al., 2019, p.336). This piqued my interest in pursuing this topic because the trend of life expectancy as smoking, alcohol consumption, and happiness fluctuates is still unknown for general population.</p>
+</div>
+<div id="methods" class="section level1">
+<h1>Methods</h1>
+<div id="data-collection" class="section level2">
+<h2>Data Collection</h2>
+<p>I selected these variables based on some background research that I believe that the variables will have a high correlation with life expectancy in general. The initial regression model contains life expectancy at birth as the response variable while the predictor variables include smoking, alcohol consumption, and happiness.</p>
+<p>Life expectancy at birth, denoted as life_expectancy_at_birth reflects the overall mortality level of a population. This represents the average number of years that a newborn is expected to live based on current mortality rates. This data is collected from <a href="https://data.worldbank.org/indicator/SP.DYN.LE00.IN" class="uri">https://data.worldbank.org/indicator/SP.DYN.LE00.IN</a></p>
+<p>Smoking rates by country, denoted as smokepercentage, is defined as the proportion of population over the minimum smoking age that smokes regularly in the country is one of the well-known causes of reduction in life expectancy (Manuel, D. G., 2012, p.1 and Janssen et al., 2021). This data is collected from <a href="https://worldpopulationreview.com/country-rankings/smoking-rates-by-country" class="uri">https://worldpopulationreview.com/country-rankings/smoking-rates-by-country</a></p>
+<p>Alcohol consumption per capita, denoted as alcohol consumption, is defined as number of pure alcohol litres consumed every year per capita over legal drinking age also increases mortality and cancer risk in older adults (Kunzmann et al., 2018). This data is collected from <a href="https://data.worldbank.org/indicator/SH.ALC.PCAP.LI" class="uri">https://data.worldbank.org/indicator/SH.ALC.PCAP.LI</a></p>
+<p>World happiness index, denoted as happiness, is defined by average answers to the main life evaluation question known as Cantril ladder, which asks respondents to think of a ladder with the best possible life for them being a 10 and worst possible life for them being a 0 and rate themselves. This data is collected from <a href="https://www.kaggle.com/datasets/unsdsn/world-happiness" class="uri">https://www.kaggle.com/datasets/unsdsn/world-happiness</a></p>
+<p>Each of these datasets are taken from year 2018 for consistency. We will also use a Country-Continent Dataset to group each of the countries based on their continents.</p>
+</div>
+<div id="data-wrangling" class="section level2">
+<h2>Data Wrangling</h2>
+<p>To begin with, I imported several libraries that I am going to use for the data analysis which includes tidyverse, dplyr, mgcv, and car ??????????????. After collecting the data from the sources containing similar time stamp, I used read.csv method to save the dataset into the environment data. The datasets are labeled as smoking, alcohol, happiness, continent, and life_expectancy. Then, for each of the dataset, I only selected the country column and the value index column for smokepercentage, alcohol_consumption, happiness and life_expectancy_at_birth respectively, all from year 2018 for consistency, and remove other unnecessary columns. This is done with the help of subset and colnames function from the base R package.</p>
+<p>Next, for each of the datasets, I removed any missing values because imputing the values with median or mean is not suitable given that our information is limited. Next, I remove outliers for each of the datasets using my own defined outliers function which removes anything above or below the upper or lower quartile ± 1.5 Interquartile Range. In the end, I combined all of the datasets into a combined dataset grouped by each country using the group_by function and remove any countries that does not contain all three information. During each step, I also make sure that everything is going according to the plan by looking at the summaries and environment tab.</p>
+</div>
+<div id="linear-modelling" class="section level2">
+<h2>Linear Modelling</h2>
+<p>Afterwards, I am going to perform EDA by checking scatterplot between response and predictor and creating boxplots and histograms of the variables. I will also check for any nonlinear trend, clusters, discernible patterns, and normality of distribution of residuals to verify linear model assumptions.</p>
+<p>First, I will take a look into the linearity of each pair of independent and dependent variables using the scatterplots to see if linearity seems to be present or not. Next, I am going to check normality using histogram, QQ-Plot, and a goodness of fit test. In case the data is not normally distributed, I will use boxcox power transformation to generate a better model regarding the normality assumption and see if the problem will be resolved or not. Subsequently, I will check for multicollinearity by looking at the VIF for the predictors and report any detrimental multicollinearity if they exist. Conclusively, I will check for homoscedasticity and also do appropriate adjustments if needed.</p>
+<p>After fulfilling model assumptions, we will check all possible models (1, 2, or 3 predictors) to evaluate their significance and Adjusted R^2 and conduct partial F-test to find the best model. Note that since there are only 7<br />
+non-empty distinct subsets of the predictors, we will just manually check all three since using other selection methods like AIC or automated selection is inefficient.</p>
+<p>In the end, we will proceed with fitting a linear model to see our result and performance of the linear model and compare it with advanced regression model with cubic regression splines on each non-empty distinct subsets of the predictor variables.</p>
+</div>
+<div id="machine-learning" class="section level2">
+<h2>Machine Learning</h2>
+</div>
+</div>
+<div id="results" class="section level1">
+<h1>Results</h1>
+<div id="linear-modelling-1" class="section level2">
+<h2>Linear Modelling</h2>
+<p>After the initial data cleaning, we have 112 observations in our combined dataset, none of which contains any missing values. Stepping into the Exploratory Data Analysis, Figure 1 shows that the distribution for smoking is like normal distribution while alcohol and life expectancy have a right skewed and left skewed non-normal distribution respectively. The value for each variable seems to have a big variance and there aren’t any noticeable extreme observations.</p>
+<div class="figure">
+<img src="Report_files/figure-html/unnamed-chunk-6-1.png" alt="Boxplots and Histograms of Percentage of Smokers, Average Alcohol Consumption, and Life Expectancy at Birth" width="768" />
+<p class="caption">
+Boxplots and Histograms of Percentage of Smokers, Average Alcohol Consumption, and Life Expectancy at Birth
+</p>
+</div>
+<p>Next, Figure 2 shows that linearity assumption between each pair of independent variables and dependent variable other than Happiness Index is not very strong and we have to note this as our final result might not be accurate.</p>
+<div class="figure">
+<img src="Report_files/figure-html/unnamed-chunk-7-1.png" alt="Scatterplots between Predictor Variables and Response Variable" width="1152" />
+<p class="caption">
+Scatterplots between Predictor Variables and Response Variable
+</p>
+</div>
+<p>Now, looking to Figure 3, we can see that the fitted against the real value seems to have a good linear relationship and the pattern in the residual plot have slight fanning which shows a problem in non-constant variance and there also exists some observations far from zero. Q-Q plot shows that normality seems to be fulfilled and it appears that smoking and alcohol also have a slight linear relationship which will be covered later in multicollinearity.</p>
+<div class="figure">
+<img src="Report_files/figure-html/unnamed-chunk-8-1.png" alt="Fitted and Residual Plots, QQ-Plot, Predictors Plot Before Transformation" width="864" />
+<p class="caption">
+Fitted and Residual Plots, QQ-Plot, Predictors Plot Before Transformation
+</p>
+</div>
+<p>Based on our observation, we will do a power transformation to the variables, and it shows that we must increase the exponent of our response variable to the power of five. After transformation, we can see that in Figure 3, our residual plots seem to have a better pattern in homoscedasticity and a slightly better QQ-Plot. Our fitted value also has a better linear relationship with the actual value compared to the previous chart. Note that the VIF between the predictors are below 1.3 which is a very good indicator that there is no multicollinearity between the predictors.</p>
+<div class="figure">
+<img src="Report_files/figure-html/unnamed-chunk-10-1.png" alt="Fitted and Residual Plots, QQ-Plot, Predictors Plot After BoxCox Transformation" width="864" />
+<p class="caption">
+Fitted and Residual Plots, QQ-Plot, Predictors Plot After BoxCox Transformation
+</p>
+</div>
+<p>Now that our assumptions have been fulfilled, on Appendix 1, we run different models with all non-empty subsets of the predictors to find out that the model with both predictors have a low adjusted R^2 of 0.6964 which is better than other models as you can see from the table below. Hence, we are going to proceed with the model containing 3 predictors.</p>
+<div style="page-break-after: always;"></div>
+<table>
+<caption>Adjusted R^2 for Linear Models with Different Predictors</caption>
+<thead>
+<tr class="header">
+<th align="left">Model</th>
+<th align="right">Adjusted R-Squared</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">All Three Predictors</td>
+<td align="right">0.696</td>
+</tr>
+<tr class="even">
+<td align="left">Percentage of Smokers and Average Alcohol Consumption</td>
+<td align="right">0.210</td>
+</tr>
+<tr class="odd">
+<td align="left">Average Alcohol Consumption and Happiness</td>
+<td align="right">0.672</td>
+</tr>
+<tr class="even">
+<td align="left">Percentage of Smokers and Happiness</td>
+<td align="right">0.693</td>
+</tr>
+<tr class="odd">
+<td align="left">Percentage of Smokers only</td>
+<td align="right">0.063</td>
+</tr>
+<tr class="even">
+<td align="left">Average Alcohol Consumption only</td>
+<td align="right">0.191</td>
+</tr>
+<tr class="odd">
+<td align="left">Happiness only</td>
+<td align="right">0.662</td>
+</tr>
+</tbody>
+</table>
+<p>Following our model selection, we fit multiple models with cubic regression spline on the predictors in hope for a better model. However, based on Table 2 and Appendix 2, we can see that there isn’t any significant jump in performance between the models. Each of the resulting model have an Adjusted R^2 of 0.696. Hence, we will stick with our original linear model with all the predictors without any splines.</p>
+<table>
+<caption>Adjusted R^2 for Linear Models With/Without Cubic Regression Splines on the Predictors</caption>
+<thead>
+<tr class="header">
+<th align="left">Model</th>
+<th align="right">Adjusted R-Squared</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">No Splines</td>
+<td align="right">0.6964</td>
+</tr>
+<tr class="even">
+<td align="left">Percentage of Smokers only</td>
+<td align="right">0.6960</td>
+</tr>
+<tr class="odd">
+<td align="left">Average Alcohol Consumption only</td>
+<td align="right">0.6960</td>
+</tr>
+<tr class="even">
+<td align="left">Happiness only</td>
+<td align="right">0.6960</td>
+</tr>
+</tbody>
+</table>
+<!-- ## Data Exploration -->
+<!-- ```{r} -->
+<!-- aggregate_continent <- combined_dataset %>% -->
+<!--   group_by(Continent) %>% -->
+<!--   summarize(smokepercentage = mean(smokepercentage), -->
+<!--             alcohol_consumption = mean(alcohol_consumption), -->
+<!--             happiness = mean(happiness), -->
+<!--             life_expectancy = mean(life_expectancy_at_birth)) -->
+<!-- aggregate_continent %>% -->
+<!--   ggplot(aes(x = )) -->
+<!-- ``` -->
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>From the seven possible models in Appendix 1, based on previous results and arguments, we will pick the original model with both smoking, alcohol, and happiness as the predictor variables and life expectancy as the response variable. The Adjusted R^2 for the selected model is 0.6964. Furthermore, we decided to not include any splines since including them does not result in significantly better model and it will increase the chance of overfitting given that our dataset size is very small. It’s also critical to note that the model contains several limitations that we’ll discuss soon.</p>
+<p>From each of the linear models, smokepercentage have a slight strong linear relationship with life expectancy while alcohol does not show a significant linear relationship with life expectancy. In addition, happiness is the factor that have the strongest linear relationship with life expectancy. All predictors combined have a stronger linear relationship with life expectancy.</p>
+<p>When other variable remains constant, an increase of one unit in smokepercentage on average will result in increase of 2 million units of Life Expectancy^5 and increase of one litre of alcohol consumption on average will result in increase of 2.3 million units of Life Expectancy^5 and increase of one in happiness index will result in increase of 7.3 million units of Life Expectancy^5.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Coefficients</th>
+<th align="left">Estimate</th>
+<th align="left">P-Value</th>
+<th align="left">Significance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Intercept</td>
+<td align="left">-2.3 * 10^9</td>
+<td align="left">10^-10</td>
+<td align="left">***</td>
+</tr>
+<tr class="even">
+<td align="left">smokepercentage</td>
+<td align="left">2 * 10^7</td>
+<td align="left">0.003</td>
+<td align="left">**</td>
+</tr>
+<tr class="odd">
+<td align="left">alcohol_consumption</td>
+<td align="left">2.3 * 10^7</td>
+<td align="left">0.16</td>
+<td align="left">*</td>
+</tr>
+<tr class="even">
+<td align="left">happiness</td>
+<td align="left">7.3 * 10^8</td>
+<td align="left">10^-16</td>
+<td align="left">***</td>
+</tr>
+</tbody>
+</table>
+<p><em>Table 3: Model Summary</em></p>
+</div>
+<div id="limitation-and-strengths" class="section level2">
+<h2>Limitation and Strengths</h2>
+<p>We also need to remember that there are a lot of limitations and problems along our research and methods. First, our dataset is small as it only contains 101 observations and we decided to not validate our data since dividing them into training and testing dataset will further reduce the sample size and the accuracy of the model. We also use country’s general population data which averages values over everyone which causes over-generalization as same weights are given to each country, despite huge difference in population count.</p>
+<p>Our data source also included 4 different data collected independently which causes variance and inaccuracy of time in our data. In our model checking, we merely check model assumptions by observing the data and transforming using a single method which might not be suitable in every scenario. Since our data are small, the transformation might overfit into our data which cause our validation to fail by significant margin. Our model selection is very limited because we only collect three different predictors to begin with which limits us to seven different non-empty subsets. Finally, our final model has moderate Adjusted R^2 and very low p-value which means that our predictors explain life expectancy pretty well.</p>
+<p>We can improve our research by collecting a smaller cluster of data (smaller groups instead of countries) and gathering scientifically proven predictors that affect life expectancy significantly to allow better model selection and reduce variance of data.</p>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div id="appendix" class="section level1">
+<h1>Appendix</h1>
+<div id="appendix-1" class="section level2">
+<h2>Appendix 1</h2>
+<p><strong>Original Model of 2 Predictors vs Three Models of Each Predictor</strong></p>
+<pre><code>## 
+## Call:
+## lm(formula = life_expectancy_at_birth^5 ~ smokepercentage + alcohol_consumption + 
+##     happiness, data = combined_dataset)
+## 
+## Residuals:
+##        Min         1Q     Median         3Q        Max 
+## -1.507e+09 -3.484e+08 -2.346e+07  2.995e+08  1.602e+09 
+## 
+## Coefficients:
+##                       Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         -2.311e+09  3.303e+08  -6.997 3.39e-10 ***
+## smokepercentage      2.052e+07  6.906e+06   2.971  0.00375 ** 
+## alcohol_consumption  2.300e+07  1.624e+07   1.417  0.15978    
+## happiness            7.316e+08  5.820e+07  12.571  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 574300000 on 97 degrees of freedom
+## Multiple R-squared:  0.7055, Adjusted R-squared:  0.6964 
+## F-statistic: 77.46 on 3 and 97 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = life_expectancy_at_birth^5 ~ smokepercentage + happiness, 
+##     data = combined_dataset)
+## 
+## Residuals:
+##        Min         1Q     Median         3Q        Max 
+## -1.374e+09 -3.785e+08 -4.307e+07  3.082e+08  1.620e+09 
+## 
+## Coefficients:
+##                   Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)     -2.390e+09  3.271e+08  -7.307 7.41e-11 ***
+## smokepercentage  2.268e+07  6.770e+06   3.350  0.00115 ** 
+## happiness        7.650e+08  5.348e+07  14.305  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 577200000 on 98 degrees of freedom
+## Multiple R-squared:  0.6994, Adjusted R-squared:  0.6933 
+## F-statistic:   114 on 2 and 98 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = life_expectancy_at_birth^5 ~ smokepercentage + alcohol_consumption, 
+##     data = combined_dataset)
+## 
+## Residuals:
+##        Min         1Q     Median         3Q        Max 
+## -2.096e+09 -6.489e+08 -6.316e+05  7.425e+08  2.232e+09 
+## 
+## Coefficients:
+##                      Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         1.223e+09  2.797e+08   4.373 3.06e-05 ***
+## smokepercentage     2.064e+07  1.114e+07   1.853   0.0669 .  
+## alcohol_consumption 1.057e+08  2.395e+07   4.414 2.61e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 926400000 on 98 degrees of freedom
+## Multiple R-squared:  0.2257, Adjusted R-squared:  0.2099 
+## F-statistic: 14.28 on 2 and 98 DF,  p-value: 3.605e-06</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = life_expectancy_at_birth^5 ~ alcohol_consumption + 
+##     happiness, data = combined_dataset)
+## 
+## Residuals:
+##        Min         1Q     Median         3Q        Max 
+## -1.822e+09 -3.949e+08 -2.761e+07  3.513e+08  1.581e+09 
+## 
+## Coefficients:
+##                       Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         -1.922e+09  3.152e+08  -6.100 2.12e-08 ***
+## alcohol_consumption  3.367e+07  1.646e+07   2.046   0.0434 *  
+## happiness            7.319e+08  6.048e+07  12.102  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 596700000 on 98 degrees of freedom
+## Multiple R-squared:  0.6787, Adjusted R-squared:  0.6722 
+## F-statistic: 103.5 on 2 and 98 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = life_expectancy_at_birth^5 ~ smokepercentage, data = combined_dataset)
+## 
+## Residuals:
+##        Min         1Q     Median         3Q        Max 
+## -2.373e+09 -8.072e+08 -2.400e+07  8.021e+08  1.840e+09 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)     1.673e+09  2.837e+08   5.898 5.13e-08 ***
+## smokepercentage 3.257e+07  1.177e+07   2.766  0.00677 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 1.009e+09 on 99 degrees of freedom
+## Multiple R-squared:  0.07173,    Adjusted R-squared:  0.06236 
+## F-statistic:  7.65 on 1 and 99 DF,  p-value: 0.006773</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = life_expectancy_at_birth^5 ~ alcohol_consumption, 
+##     data = combined_dataset)
+## 
+## Residuals:
+##        Min         1Q     Median         3Q        Max 
+## -2.404e+09 -6.720e+08  1.130e+08  6.525e+08  2.159e+09 
+## 
+## Coefficients:
+##                      Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         1.615e+09  1.852e+08   8.722 6.67e-14 ***
+## alcohol_consumption 1.165e+08  2.352e+07   4.952 3.02e-06 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 937700000 on 99 degrees of freedom
+## Multiple R-squared:  0.1986, Adjusted R-squared:  0.1905 
+## F-statistic: 24.53 on 1 and 99 DF,  p-value: 3.019e-06</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = life_expectancy_at_birth^5 ~ happiness, data = combined_dataset)
+## 
+## Residuals:
+##        Min         1Q     Median         3Q        Max 
+## -1.669e+09 -3.523e+08 -4.681e+07  3.674e+08  1.606e+09 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -1.982e+09  3.188e+08  -6.215 1.22e-08 ***
+## happiness    7.833e+08  5.588e+07  14.018  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 606300000 on 99 degrees of freedom
+## Multiple R-squared:  0.665,  Adjusted R-squared:  0.6616 
+## F-statistic: 196.5 on 1 and 99 DF,  p-value: &lt; 2.2e-16</code></pre>
+<div style="page-break-after: always;"></div>
+</div>
+<div id="appendix-2" class="section level2">
+<h2>Appendix 2</h2>
+<p><strong>Final Model of 3 Predictors With/Without cubic Regression Spline on Each Predictor</strong></p>
+<pre><code>## 
+## Call:
+## lm(formula = life_expectancy_at_birth^5 ~ smokepercentage + alcohol_consumption + 
+##     happiness, data = combined_dataset)
+## 
+## Residuals:
+##        Min         1Q     Median         3Q        Max 
+## -1.507e+09 -3.484e+08 -2.346e+07  2.995e+08  1.602e+09 
+## 
+## Coefficients:
+##                       Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         -2.311e+09  3.303e+08  -6.997 3.39e-10 ***
+## smokepercentage      2.052e+07  6.906e+06   2.971  0.00375 ** 
+## alcohol_consumption  2.300e+07  1.624e+07   1.417  0.15978    
+## happiness            7.316e+08  5.820e+07  12.571  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 574300000 on 97 degrees of freedom
+## Multiple R-squared:  0.7055, Adjusted R-squared:  0.6964 
+## F-statistic: 77.46 on 3 and 97 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre><code>## 
+## Family: gaussian 
+## Link function: identity 
+## 
+## Formula:
+## life_expectancy_at_birth^5 ~ s(smokepercentage, bs = &quot;cr&quot;) + 
+##     alcohol_consumption + happiness
+## 
+## Parametric coefficients:
+##                       Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         -1.848e+09  3.043e+08  -6.074 2.43e-08 ***
+## alcohol_consumption  2.300e+07  1.624e+07   1.417     0.16    
+## happiness            7.316e+08  5.820e+07  12.571  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Approximate significance of smooth terms:
+##                    edf Ref.df     F p-value   
+## s(smokepercentage)   1      1 8.825 0.00375 **
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## R-sq.(adj) =  0.696   Deviance explained = 70.6%
+## GCV = 3.4337e+17  Scale est. = 3.2977e+17  n = 101</code></pre>
+<pre><code>## 
+## Family: gaussian 
+## Link function: identity 
+## 
+## Formula:
+## life_expectancy_at_birth^5 ~ smokepercentage + s(alcohol_consumption, 
+##     bs = &quot;cr&quot;) + happiness
+## 
+## Parametric coefficients:
+##                   Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)     -2.154e+09  3.656e+08  -5.893  5.5e-08 ***
+## smokepercentage  2.052e+07  6.906e+06   2.971  0.00375 ** 
+## happiness        7.316e+08  5.820e+07  12.571  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Approximate significance of smooth terms:
+##                        edf Ref.df     F p-value
+## s(alcohol_consumption)   1      1 2.007    0.16
+## 
+## R-sq.(adj) =  0.696   Deviance explained = 70.6%
+## GCV = 3.4337e+17  Scale est. = 3.2977e+17  n = 101</code></pre>
+<pre><code>## 
+## Family: gaussian 
+## Link function: identity 
+## 
+## Formula:
+## life_expectancy_at_birth^5 ~ smokepercentage + alcohol_consumption + 
+##     s(happiness, bs = &quot;cr&quot;)
+## 
+## Parametric coefficients:
+##                      Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         1.788e+09  1.791e+08   9.985  &lt; 2e-16 ***
+## smokepercentage     2.052e+07  6.906e+06   2.971  0.00375 ** 
+## alcohol_consumption 2.300e+07  1.624e+07   1.417  0.15978    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Approximate significance of smooth terms:
+##              edf Ref.df   F p-value    
+## s(happiness)   1      1 158  &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## R-sq.(adj) =  0.696   Deviance explained = 70.6%
+## GCV = 3.4337e+17  Scale est. = 3.2977e+17  n = 101</code></pre>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<ol style="list-style-type: decimal">
+<li><p>Manuel, D. G. (2012). Seven more years the impact of smoking, alcohol, diet, physical activity and stress on health and life expectancy in Ontario: an ICES/PHO report. Institute for Clinical Evaluative Sciences.</p></li>
+<li><p>Janssen, F., Trias-Llimós, S., &amp; Kunst, A. E. (2021). The combined impact of smoking, obesity, and alcohol on life-expectancy trends in Europe. International Journal of Epidemiology, 50(3), 931–941. <a href="https://doi.org/10.1093/ije/dyaa273" class="uri">https://doi.org/10.1093/ije/dyaa273</a></p></li>
+<li><p>Östergren, O., Martikainen, P., Tarkiainen, L., Elstad, J. I., &amp; Brønnum-Hansen, H. (2019). Contribution of smoking and alcohol consumption to income differences in life expectancy: evidence using Danish, Finnish, Norwegian and Swedish register data. Journal of Epidemiology and Community Health (1979), 73(4), 334–339. <a href="https://doi.org/10.1136/jech2018-211640" class="uri">https://doi.org/10.1136/jech2018-211640</a></p></li>
+<li><p>Kunzmann AT, Coleman HG, Huang WY, Berndt SI (2018) The association of lifetime alcohol use with mortality and cancer risk in older adults: A cohort study. PLOS Medicine 15(6): e1002585. <a href="https://doi.org/10.1371/journal.pmed.1002585" class="uri">https://doi.org/10.1371/journal.pmed.1002585</a></p></li>
+<li><p>Lawrence, E. M., Rogers, R. G., &amp; Wadsworth, T. (2015). Happiness and longevity in the United States. Social science &amp; medicine (1982), 145, 115–119. <a href="https://doi.org/10.1016/j.socscimed.2015.09.020" class="uri">https://doi.org/10.1016/j.socscimed.2015.09.020</a></p></li>
+<li><p>Smoking Rates by Country 2021: <a href="https://worldpopulationreview.com/country-rankings/smoking-rates-by-country" class="uri">https://worldpopulationreview.com/country-rankings/smoking-rates-by-country</a></p></li>
+<li><p>Alcohol consumption per capita per year (litres of pure alcohol): <a href="https://data.worldbank.org/indicator/SH.ALC.PCAP.LI" class="uri">https://data.worldbank.org/indicator/SH.ALC.PCAP.LI</a></p></li>
+<li><p>Life Expectancy at Birth (in years): <a href="https://data.worldbank.org/indicator/SP.DYN.LE00.IN" class="uri">https://data.worldbank.org/indicator/SP.DYN.LE00.IN</a></p></li>
+<li><p>World Happiness Report 2019: <a href="https://www.kaggle.com/datasets/unsdsn/world-happiness" class="uri">https://www.kaggle.com/datasets/unsdsn/world-happiness</a></p></li>
+<li><p>Country to Continent Dataset: <a href="https://raw.githubusercontent.com/dbouquin/IS_608/master/NanosatDB_munging/Countries-Continents.csv" class="uri">https://raw.githubusercontent.com/dbouquin/IS_608/master/NanosatDB_munging/Countries-Continents.csv</a></p></li>
+</ol>
+</div>
+
+<p>Copyright &copy; 2022, Meredith Franklin.</p>
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
