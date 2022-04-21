@@ -1,0 +1,377 @@
+---
+title: "JSC370 Midterm Project"
+author: "Christopher Matthew"
+date: '2022-02-28'
+output:
+  pdf_document:
+    template: template.tex
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+lang: en
+subtitle: Impact of smoking, alcohol consumption, and happiness on life expectancy around the world
+titlepage: yes
+titlepage-color: "002A5C"
+titlepage-text-color: "afb4e0"
+titlepage-rule-color: "afb4e0"
+titlepage-rule-height: 2
+urlcolor: blue
+linkcolor: black
+---
+
+\listoffigures
+
+\newpage
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(dplyr)
+library(car)
+library(mgcv)
+library(gridExtra)
+```
+
+# Introduction
+
+How does smoking, alcohol consumption, and happiness effect life expectancy at birth of general world
+population? It is a common knowledge that smoking, drinking excessive amount of alcohol, or being sad and depressed
+will negatively impact your health but just how detrimental they will affect
+your life. This paper will emphasize how life expectancy get affected across various quantities of
+smoking, alcohol consumption, and happiness in the countries of the world and how I am going to
+generalize the results to the general population.
+
+Even though smoking reduces someone’s average life expectancy by 2.5 years in Canada
+(Manuel, D. G., 2012, p.1), alcohol reduces it by 1.5 years in Europe (Janssen et al., 2021,
+p.937), USA drink plenty of alcohol and smoke, yet they have a relatively high life expectancy. In addition, compared to very happy people, the risk of death over the follow-up period is 14% (95% CI 1.06 – 1.22) higher among those who are not happy (Lawrence et al., 2015). Interestingly, intake of both smoking and alcohol only contributes to -0.07 years in life expectancy of Nordic countries (Östergren et al., 2019, p.336). This piqued my interest in pursuing this topic because the trend of life expectancy as smoking, alcohol consumption, and happiness fluctuates is still unknown for general population.
+
+# Methods
+
+## Data Collection
+
+I selected these variables based on some background research that I believe that the variables will have a high correlation with life expectancy in general. The initial regression model contains life expectancy at birth as the response variable while the predictor variables include smoking, alcohol consumption, and happiness.
+
+Life expectancy at birth, denoted as life_expectancy_at_birth reflects the overall mortality level of a population. This represents the average number of years that a newborn is expected to live based on current mortality rates. This data is collected from https://data.worldbank.org/indicator/SP.DYN.LE00.IN
+
+Smoking rates by country, denoted as smokepercentage, is defined as the proportion of
+population over the minimum smoking age that smokes regularly in the country is one of the
+well-known causes of reduction in life expectancy (Manuel, D. G., 2012, p.1 and Janssen et al.,
+2021). This data is collected from https://worldpopulationreview.com/country-rankings/smoking-rates-by-country
+
+Alcohol consumption per capita, denoted as alcohol consumption, is defined as number of
+pure alcohol litres consumed every year per capita over legal drinking age also increases
+mortality and cancer risk in older adults (Kunzmann et al., 2018). This data is collected from https://data.worldbank.org/indicator/SH.ALC.PCAP.LI
+
+World happiness index, denoted as happiness, is defined by average answers to the main life evaluation question known as Cantril ladder, which asks respondents to think of a ladder with the best possible life for them being a 10 and worst possible life for them being a 0 and rate themselves. This data is collected from https://www.kaggle.com/datasets/unsdsn/world-happiness
+
+Each of these datasets are taken from year 2018 for consistency. We will also use a Country-Continent Dataset to group each of the countries based on their continents.
+
+## Data Wrangling
+
+To begin with, I imported several libraries that I am going to use for the data analysis which includes tidyverse, dplyr, mgcv, and car ??????????????. After collecting the data from the sources containing similar time stamp, I used read.csv method to save the dataset into the environment data. The datasets are labeled as smoking, alcohol, happiness, continent, and life_expectancy. Then, for each of the dataset, I only selected the country column and the value index column for smokepercentage, alcohol_consumption, happiness and life_expectancy_at_birth respectively, all from year 2018 for consistency, and remove other unnecessary columns. This is done with the help of subset and colnames function from the base R package.
+
+Next, for each of the datasets, I removed any missing values because imputing the values with median or mean is not suitable given that our information is limited. Next, I remove outliers for each of the datasets using my own defined outliers function which removes anything above or below the upper or lower quartile ± 1.5 Interquartile Range. In the end, I combined all of the datasets into a combined dataset grouped by each country using the group_by function and remove any countries that does not contain all three information. During each step, I also make sure that everything is going according to the plan by looking at the summaries and environment tab.
+
+## Linear Modelling
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+outliers <- function(x) {
+
+  Q1 <- quantile(x, probs=.25)
+  Q3 <- quantile(x, probs=.75)
+  iqr = Q3-Q1
+
+ upper_limit = Q3 + (iqr*1.5)
+ lower_limit = Q1 - (iqr*1.5)
+
+ x > upper_limit | x < lower_limit
+}
+
+remove_outliers <- function(df, cols = names(df)) {
+  for (col in cols) {
+    df <- df[!outliers(df[[col]]),]
+  }
+  df
+}
+```
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+smoking <- read.csv(file = "data/Smoking.csv", header = TRUE)
+alcohol <- read.csv(file = "data/Alcohol Consumption.csv", header = TRUE)
+life_expectancy <- read.csv(file = "data/Life Expectancy.csv", header = TRUE)
+happiness <- read.csv(file = "data/Happiness.csv", header = TRUE)
+continent <- read.csv(file = "data/Continents.csv", header = TRUE)
+```
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+smoking <- na.omit(subset(smoking, select = c(1, 2)))
+colnames(smoking) <- c("Country", "smokepercentage")
+alcohol <- na.omit(subset(alcohol, select = c(1, 63)))
+colnames(alcohol) <- c("Country", "alcohol_consumption")
+life_expectancy <- na.omit(subset(life_expectancy, select = c(1, 63)))
+colnames(life_expectancy) <- c("Country", "life_expectancy_at_birth")
+happiness <- na.omit(subset(happiness, select = c(2, 3)))
+colnames(happiness) <- c("Country", "happiness")
+```
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, include = FALSE}
+summary(smoking)
+summary(alcohol)
+summary(life_expectancy)
+summary(happiness)
+summary(continent)
+```
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+smoking <- remove_outliers(smoking, c('smokepercentage'))
+alcohol <- remove_outliers(alcohol, c('alcohol_consumption'))
+life_expectancy <- remove_outliers(life_expectancy, c('life_expectancy_at_birth'))
+happiness <- remove_outliers(happiness, c('happiness'))
+combined_dataset <- na.omit(merge(merge(merge(smoking, alcohol, by = 'Country'), happiness, by = 'Country'), life_expectancy, by = 'Country'))
+combined_dataset <- na.omit(merge(combined_dataset, continent, by = 'Country'))
+```
+
+Afterwards, I am going to perform EDA by checking scatterplot between response and predictor and creating boxplots and histograms of the variables. I will also check for any nonlinear trend, clusters, discernible patterns, and normality of distribution of residuals to verify linear model assumptions.
+
+First, I will take a look into the linearity of each pair of independent and dependent variables using the scatterplots to see if linearity seems to be present or not. Next, I am going to check normality using histogram, QQ-Plot, and a goodness of fit test. In case the data is not normally distributed, I will use boxcox power transformation to generate a better model regarding the normality assumption and see if the problem will be resolved or not. Subsequently, I will check for multicollinearity by looking at the VIF for the predictors and report any detrimental multicollinearity if they exist. Conclusively, I will check for homoscedasticity and also do appropriate adjustments if needed.
+
+After fulfilling model assumptions,
+we will check all possible models (1, 2, or 3 predictors) to evaluate their significance and Adjusted R^2 and conduct partial F-test to find the best model. Note that since there are only 7       
+non-empty distinct subsets of the predictors, we will just manually check all three since using
+other selection methods like AIC or automated selection is inefficient.
+
+In the end, we will proceed with fitting a linear model to see our result and performance of the linear model and compare it with advanced regression model with cubic regression splines on each non-empty distinct subsets of the predictor variables.
+
+## Machine Learning
+
+
+
+# Results
+
+## Linear Modelling
+
+After the initial data cleaning, we have 112 observations in our combined dataset, none of which contains any missing values. Stepping into the Exploratory Data Analysis, Figure 1 shows that the distribution for smoking is like normal distribution while alcohol and life expectancy have a right skewed and left skewed non-normal distribution respectively. The value for each variable seems to have a big variance and there aren’t any noticeable extreme observations.
+
+```{r, fig.height = 8, fig.width = 8, echo = FALSE, message = FALSE, warning = FALSE, fig.cap = "Boxplots and Histograms of Percentage of Smokers, Average Alcohol Consumption, and Life Expectancy at Birth"}
+plot1 <- ggplot(combined_dataset, aes(smokepercentage)) + geom_histogram(color = "red", fill = "blue") + ggtitle("Histogram of Smoking") + xlab("Percentage of Smokers") + ylab( "Frequency")
+plot2 <- ggplot(combined_dataset, aes(alcohol_consumption)) + geom_histogram(color = "red", fill = "blue") + ggtitle("Histogram of Alcohol") + xlab("Average Alcohol Consumption (Pure Litres per Year)") + ylab("Frequency")
+plot3 <- ggplot(combined_dataset, aes(life_expectancy_at_birth)) + geom_histogram(color = "red", fill = "blue") + ggtitle("Histogram of Life Expectancy") + xlab("Life Expectancy at Birth") + ylab( "Frequency")
+plot4 <- ggplot(combined_dataset, aes(happiness)) + geom_histogram(color = "red", fill = "blue") + ggtitle("Histogram of Happiness") + xlab("Happiness Index") + ylab( "Frequency")
+grid.arrange(plot1, plot2, plot3, plot4, ncol = 2)
+```
+
+Next, Figure 2 shows that linearity assumption between each pair of independent variables and dependent variable other than Happiness Index is not very strong and we have to note this as our final result might not be accurate.
+
+```{r, fig.height = 4, fig.width = 12, echo = FALSE, message = FALSE, warning = FALSE, fig.cap = "Scatterplots between Predictor Variables and Response Variable"}
+par(mfrow=c(1,3))
+plot(y = combined_dataset$smokepercentage, x = combined_dataset$life_expectancy_at_birth, ylab = "Percentage of Smokers", xlab = "Life Expectancy at Birth", main = "Percentage of Smokers Vs. Life Expectancy at Birth")
+plot(y = combined_dataset$alcohol_consumption, x = combined_dataset$life_expectancy_at_birth, ylab = "Alcohol Consumption per Capita per Year (pure litres per year)", xlab = "Life Expectancy at Birth", main = "Alcohol Consumption Vs. Life Expectancy at Birth")
+plot(y = combined_dataset$happiness, x = combined_dataset$life_expectancy_at_birth, ylab = "Happiness Index", xlab = "Life Expectancy at Birth", main = "Happiness Index Vs. Life Expectancy at Birth")
+```
+
+Now, looking to Figure 3, we can see that the fitted against the real value seems to have a good
+linear relationship and the pattern in the residual plot have slight fanning which shows a problem
+in non-constant variance and there also exists some observations far from zero. Q-Q plot shows
+that normality seems to be fulfilled and it appears that smoking and alcohol also have a slight
+linear relationship which will be covered later in multicollinearity.
+
+```{r, fig.height = 6, fig.width = 9, echo = FALSE, message = FALSE, warning = FALSE, fig.cap = "Fitted and Residual Plots, QQ-Plot, Predictors Plot Before Transformation"}
+model = lm(life_expectancy_at_birth ~ smokepercentage + alcohol_consumption + happiness, data = combined_dataset)
+# summary(model)
+# confint(model, level=0.95)
+residual = resid(model)
+residual <- resid(model)
+par(mfrow=c(2,3))
+plot(life_expectancy_at_birth ~ fitted(model), main="Fitted vs Life Expectancy", xlab="Life Expectancy at Birth", ylab="Fitted", data=combined_dataset)
+abline(a = 0, b = 1)
+plot(residual ~ fitted(model), main="Residuals vs Fitted", xlab="Fitted", ylab="Residual", data=combined_dataset)
+plot(residual ~ smokepercentage, main="Residuals vs Smoking", xlab="Percentage of Smokers", ylab="Residual", data=combined_dataset)
+plot(residual ~ alcohol_consumption, main="Residuals vs Alcohol", xlab="Average Alcohol Consumption", ylab="Residual", data=combined_dataset)
+plot(residual ~ happiness, main="Residuals vs Happiness", xlab="Happiness Index", ylab="Residual", data=combined_dataset)
+qqline(residual)
+qqnorm(residual)
+```
+```{r, echo = FALSE, message = FALSE, warning = FALSE, include = FALSE}
+vif(model)
+boxCox(model)
+p <- powerTransform(cbind(combined_dataset[,2], combined_dataset[,3], combined_dataset[,4], combined_dataset[,5]))
+summary(p)
+```
+
+Based on our observation, we will do a power transformation to the variables, and it shows that
+we must increase the exponent of our response variable to the power of five. After
+transformation, we can see that in Figure 3, our residual plots seem to have a better pattern in
+homoscedasticity and a slightly better QQ-Plot. Our fitted value also has a better linear
+relationship with the actual value compared to the previous chart. Note that the VIF between the
+predictors are below 1.3 which is a very good indicator that there is no multicollinearity between
+the predictors.
+
+```{r, fig.height = 6, fig.width = 9, echo = FALSE, message = FALSE, warning = FALSE, fig.cap = "Fitted and Residual Plots, QQ-Plot, Predictors Plot After BoxCox Transformation"}
+model1 = lm(life_expectancy_at_birth^5 ~ smokepercentage + alcohol_consumption + happiness, data = combined_dataset)
+# summary(model)
+# confint(model, level=0.95)
+residual1 = resid(model1)
+residual1 <- resid(model1)
+par(mfrow=c(2,3))
+plot(life_expectancy_at_birth^5 ~ fitted(model1), main="Fitted vs Life Expectancy^5", xlab="Life Expectancy at Birth^5", ylab="Fitted", data=combined_dataset)
+abline(a = 0, b = 1)
+plot(residual1 ~ fitted(model1), main="Residuals vs Fitted", xlab="Fitted", ylab="Residual", data=combined_dataset)
+plot(residual1 ~ smokepercentage, main="Residuals vs Smoking", xlab="Percentage of Smokers", ylab="Residual", data=combined_dataset)
+plot(residual1 ~ alcohol_consumption, main="Residuals vs Alcohol", xlab="Average Alcohol Consumption", ylab="Residual", data=combined_dataset)
+plot(residual1 ~ happiness, main="Residuals vs Happiness", xlab="Happiness Index", ylab="Residual", data=combined_dataset)
+qqline(residual1)
+qqnorm(residual1)
+```
+
+Now that our assumptions have been fulfilled, on Appendix 1, we run different models
+with all non-empty subsets of the predictors to find out that the model with both predictors have
+a low adjusted R^2 of 0.6964 which is better than other models as you can see from the table below. Hence, we are going to proceed with the model containing 3 predictors.
+
+\newpage
+
+```{r, fig.cap= "Adjusted R^2 for Linear Models With Different Predictors"}
+tibble(Model = c('All Three Predictors', 'Percentage of Smokers and Average Alcohol Consumption', 'Average Alcohol Consumption and Happiness', 'Percentage of Smokers and Happiness', 'Percentage of Smokers only', 'Average Alcohol Consumption only', 'Happiness only'),
+       `Adjusted R-Squared` = c(0.696, 0.210, 0.672, 0.693, 0.063, 0.191, 0.662)) %>%
+       knitr::kable(caption = "Adjusted R^2 for Linear Models with Different Predictors")
+```
+
+
+Following our model selection, we fit multiple models with cubic regression spline on the predictors in hope for a better model. However, based on Table 2 and Appendix 2, we can see that there isn't any significant jump in performance between the models. Each of the resulting model have an Adjusted R^2 of 0.696. Hence, we will stick with our original linear model with all the predictors without any splines.
+
+```{r, fig.cap= "Adjusted R^2 for Linear Models With/Without Cubic Regression Splines on the Predictors"}
+tibble(Model = c('No Splines', 'Percentage of Smokers only', 'Average Alcohol Consumption only', 'Happiness only'),
+       `Adjusted R-Squared` = c(0.6964, 0.696, 0.696, 0.696)) %>%
+       knitr::kable(caption = "Adjusted R^2 for Linear Models With/Without Cubic Regression Splines on the Predictors")
+```
+
+<!-- ## Data Exploration -->
+
+<!-- ```{r} -->
+<!-- aggregate_continent <- combined_dataset %>% -->
+<!--   group_by(Continent) %>% -->
+<!--   summarize(smokepercentage = mean(smokepercentage), -->
+<!--             alcohol_consumption = mean(alcohol_consumption), -->
+<!--             happiness = mean(happiness), -->
+<!--             life_expectancy = mean(life_expectancy_at_birth)) -->
+
+<!-- aggregate_continent %>% -->
+<!--   ggplot(aes(x = )) -->
+<!-- ``` -->
+
+\newpage
+
+# Conclusion
+
+## Summary
+
+From the seven possible models in Appendix 1, based on previous results and arguments, we will pick the
+original model with both smoking, alcohol, and happiness as the predictor variables and life expectancy as
+the response variable. The Adjusted R^2 for the selected model is 0.6964. Furthermore, we decided to not include any splines since including them does not result in significantly better model and it will increase the chance of overfitting given that our dataset size is very small. It’s also critical to note that the model contains several limitations that we’ll discuss soon.
+
+From each of the linear models, smokepercentage have a slight strong linear relationship with life expectancy while alcohol does not show a significant linear relationship with life expectancy. In addition, happiness is the factor that have the strongest linear relationship with life expectancy. All predictors combined have a stronger linear relationship with life expectancy. 
+
+When other variable
+remains constant, an increase of one unit in smokepercentage on average will result in increase
+of 2 million units of Life Expectancy^5 and increase of one litre of alcohol consumption on
+average will result in increase of 2.3 million units of Life Expectancy^5 and increase of one in happiness index will result in increase of 7.3 million units of Life Expectancy^5.
+
+| Coefficients | Estimate | P-Value | Significance |
+|:----|:----|:----|:----|
+| Intercept | -2.3 * 10^9 | 10^-10 | *** |
+| smokepercentage | 2 * 10^7 | 0.003 | ** |
+| alcohol_consumption | 2.3 * 10^7 | 0.16 | * |
+| happiness | 7.3 * 10^8 | 10^-16 | *** |
+_Table 3: Model Summary_
+
+
+## Limitation and Strengths
+
+We also need to remember that there are a lot of limitations and problems along our research and
+methods. First, our dataset is small as it only contains 101 observations and we decided to not validate our data since dividing them into training and testing dataset will further reduce the sample size and the accuracy of the model. We also use country’s general population data which averages values over everyone which causes over-generalization as same
+weights are given to each country, despite huge difference in population count.
+
+Our data source also included 4 different data collected independently which causes variance and
+inaccuracy of time in our data. In our model checking, we merely check model assumptions by
+observing the data and transforming using a single method which might not be suitable in every
+scenario. Since our data are small, the transformation might overfit into our data which cause our
+validation to fail by significant margin. Our model selection is very limited because we only
+collect three different predictors to begin with which limits us to seven different non-empty
+subsets. Finally, our final model has moderate Adjusted R^2 and very low p-value which means that our predictors explain life expectancy pretty well.
+
+We can improve our research by collecting a smaller cluster of data (smaller groups instead of
+countries) and gathering scientifically proven predictors that affect life expectancy significantly
+to allow better model selection and reduce variance of data.
+
+\newpage
+
+# Appendix
+
+## Appendix 1
+
+**Original Model of 2 Predictors vs Three Models of Each Predictor**
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+summary(model1)
+summary(lm(life_expectancy_at_birth^5 ~ smokepercentage + happiness, data = combined_dataset))
+summary(lm(life_expectancy_at_birth^5 ~ smokepercentage + alcohol_consumption, data = combined_dataset))
+summary(lm(life_expectancy_at_birth^5 ~ alcohol_consumption + happiness, data = combined_dataset))
+summary(lm(life_expectancy_at_birth^5 ~ smokepercentage, data = combined_dataset))
+summary(lm(life_expectancy_at_birth^5 ~ alcohol_consumption, data = combined_dataset))
+summary(lm(life_expectancy_at_birth^5 ~ happiness, data = combined_dataset))
+```
+
+\newpage
+
+## Appendix 2
+
+**Final Model of 3 Predictors With/Without cubic Regression Spline on Each Predictor**
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+summary(model1)
+gam_mod <- gam(life_expectancy_at_birth^5 ~ s(smokepercentage, bs = "cr") + alcohol_consumption + happiness, data = combined_dataset)
+summary(gam_mod)
+gam_mod1 <- gam(life_expectancy_at_birth^5 ~ smokepercentage + s(alcohol_consumption, bs = "cr") + happiness, data = combined_dataset)
+summary(gam_mod1)
+gam_mod2 <- gam(life_expectancy_at_birth^5 ~ smokepercentage + alcohol_consumption + s(happiness, bs = "cr"), data = combined_dataset)
+summary(gam_mod2)
+```
+\newpage
+
+# References
+
+1. Manuel, D. G. (2012). Seven more years the impact of smoking, alcohol, diet, physical
+activity and stress on health and life expectancy in Ontario: an ICES/PHO report. Institute for
+Clinical Evaluative Sciences.
+
+2. Janssen, F., Trias-Llimós, S., & Kunst, A. E. (2021). The combined impact of smoking,
+obesity, and alcohol on life-expectancy trends in Europe. International Journal of
+Epidemiology, 50(3), 931–941. https://doi.org/10.1093/ije/dyaa273
+
+3. Östergren, O., Martikainen, P., Tarkiainen, L., Elstad, J. I., & Brønnum-Hansen, H. (2019).
+Contribution of smoking and alcohol consumption to income differences in life expectancy:
+evidence using Danish, Finnish, Norwegian and Swedish register data. Journal of
+Epidemiology and Community Health (1979), 73(4), 334–339. https://doi.org/10.1136/jech2018-211640
+
+4. Kunzmann AT, Coleman HG, Huang WY, Berndt SI (2018) The association of lifetime
+alcohol use with mortality and cancer risk in older adults: A cohort study. PLOS Medicine
+15(6): e1002585. https://doi.org/10.1371/journal.pmed.1002585
+
+5. Lawrence, E. M., Rogers, R. G., & Wadsworth, T. (2015). Happiness and longevity in the United States. Social science & medicine (1982), 145, 115–119. https://doi.org/10.1016/j.socscimed.2015.09.020
+
+6. Smoking Rates by Country 2021:
+https://worldpopulationreview.com/country-rankings/smoking-rates-by-country
+
+7. Alcohol consumption per capita per year (litres of pure alcohol):
+https://data.worldbank.org/indicator/SH.ALC.PCAP.LI
+
+8. Life Expectancy at Birth (in years):
+https://data.worldbank.org/indicator/SP.DYN.LE00.IN
+
+9. World Happiness Report 2019:
+https://www.kaggle.com/datasets/unsdsn/world-happiness
+
+10. Country to Continent Dataset:
+https://raw.githubusercontent.com/dbouquin/IS_608/master/NanosatDB_munging/Countries-Continents.csv
