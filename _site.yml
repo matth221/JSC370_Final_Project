@@ -10,13 +10,13 @@ navbar:
   right:
     - icon: fa-github fa-lg
       href: https://github.com/matth221
-    - text: LinkedIn
+    - icon: fa-brands fa-linkedin
       href: https://www.linkedin.com/in/toperper/
     - text: "JSC370 Home"
       href: https://jsc370.github.io/jsc370-2022/
 output:
   html_document:
-    theme: cosmo
+    theme: spacelab
     include:
       after_body: footer.html
     css: styles.css
