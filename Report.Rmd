@@ -160,7 +160,7 @@ We Will also try to fit Regression Tree, Bagging, and Random Forest with our dat
 
 ## Linear Modelling
 
-After the initial data cleaning, we have 112 observations in our combined dataset, none of which contains any missing values. Stepping into the Exploratory Data Analysis, Figure 1 shows that the distribution for smoking is like normal distribution while alcohol and life expectancy have a right skewed and left skewed non-normal distribution respectively. The value for each variable seems to have a big variance and there aren’t any noticeable extreme observations.
+After the initial data cleaning, we have 101 observations in our combined dataset, none of which contains any missing values. Stepping into the Exploratory Data Analysis, Figure 1 shows that the distribution for smoking is like normal distribution while alcohol and life expectancy have a right skewed and left skewed non-normal distribution respectively. The value for each variable seems to have a big variance and there aren’t any noticeable extreme observations.
 
 ```{r, fig.height = 8, fig.width = 8, echo = FALSE, message = FALSE, warning = FALSE, fig.cap = "Boxplots and Histograms of Percentage of Smokers, Average Alcohol Consumption, and Life Expectancy at Birth"}
 plot1 <- ggplot(combined_dataset, aes(smokepercentage)) + geom_histogram(color = "red", fill = "blue") + ggtitle("Histogram of Smoking") + xlab("Percentage of Smokers") + ylab( "Frequency")
@@ -355,8 +355,8 @@ We also compared multiple methods of predicting the value of Life Expectancy whi
 
 | Method | Test MSE 
 |:----|:----
-| Linear Model | 28.73
-| Regression Tree | 17.12
+| Linear Model | 17.12
+| Regression Tree | 28.73
 | Bagging | 20.34
 | Random Forest | 21.08
 _Table 4: Test MSE Comparison_

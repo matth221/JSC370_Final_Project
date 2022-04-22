@@ -35,8 +35,8 @@ We also compared multiple methods of predicting the value of Life Expectancy whi
 
 | Method | Test MSE 
 |:----|:----
-| Linear Model | 28.73
-| Regression Tree | 17.12
+| Linear Model | 17.12
+| Regression Tree | 28.73
 | Bagging | 20.34
 | Random Forest | 21.08
 _Table 4: Test MSE Comparison_
