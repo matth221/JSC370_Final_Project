@@ -1,0 +1,102 @@
+---
+title: "Impact of Smoking, Alcohol Consumption, and Happiness on Life Expectancy Trend in the World"
+author: "Christopher Matthew"
+date: "4/21/2022"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+# Conclusion
+
+## Summary
+
+From the seven possible models in Appendix 1, based on previous results and arguments, we will pick the
+original model with both smoking, alcohol, and happiness as the predictor variables and life expectancy as
+the response variable. The Adjusted R^2 for the selected model is 0.6964. Furthermore, we decided to not include any splines since including them does not result in significantly better model and it will increase the chance of overfitting given that our dataset size is very small. It’s also critical to note that the model contains several limitations that we’ll discuss soon.
+
+From each of the linear models, smokepercentage have a slight strong linear relationship with life expectancy while alcohol does not show a significant linear relationship with life expectancy. In addition, happiness is the factor that have the strongest linear relationship with life expectancy. All predictors combined have a stronger linear relationship with life expectancy. 
+
+When other variable
+remains constant, an increase of one unit in smokepercentage on average will result in increase
+of 2 million units of Life Expectancy^5 and increase of one litre of alcohol consumption on
+average will result in increase of 2.3 million units of Life Expectancy^5 and increase of one in happiness index will result in increase of 7.3 million units of Life Expectancy^5.
+
+| Coefficients | Estimate | P-Value | Significance |
+|:----|:----|:----|:----|
+| Intercept | -2.3 * 10^9 | 10^-10 | *** |
+| smokepercentage | 2 * 10^7 | 0.003 | ** |
+| alcohol_consumption | 2.3 * 10^7 | 0.16 | * |
+| happiness | 7.3 * 10^8 | 10^-16 | *** |
+_Table 3: Model Summary_
+
+We also compared multiple methods of predicting the value of Life Expectancy which includes Linear Model, Regression Tree, Bagging, and Random Forest. As we can see, the lowest MSE belongs to the normal linear model and this is expected since the number of observation that we have is limited and there is also a low number of predictors which makes linear regression one of the best option.
+
+| Method | Test MSE 
+|:----|:----
+| Linear Model | 28.73
+| Regression Tree | 17.12
+| Bagging | 20.34
+| Random Forest | 21.08
+_Table 4: Test MSE Comparison_
+
+## Limitation and Strengths
+
+We also need to remember that there are a lot of limitations and problems along our research and
+methods. First, our dataset is small as it only contains 101 observations and we decided to not validate our data since dividing them into training and testing dataset will further reduce the sample size and the accuracy of the model. We also use country’s general population data which averages values over everyone which causes over-generalization as same
+weights are given to each country, despite huge difference in population count.
+
+Our data source also included 4 different data collected independently which causes variance and
+inaccuracy of time in our data. In our model checking, we merely check model assumptions by
+observing the data and transforming using a single method which might not be suitable in every
+scenario. Since our data are small, the transformation might overfit into our data which cause our
+validation to fail by significant margin. Our model selection is very limited because we only
+collect three different predictors to begin with which limits us to seven different non-empty
+subsets. Finally, our final model has moderate Adjusted R^2 and very low p-value which means that our predictors explain life expectancy pretty well.
+
+We can improve our research by collecting a smaller cluster of data (smaller groups instead of
+countries) and gathering scientifically proven predictors that affect life expectancy significantly
+to allow better model selection and reduce variance of data. We can also improve our data by including more resources about the country to create an interactive map.
+
+\newpage
+
+# Appendix
+
+Please refer to the Appendix in the Official Report.
+
+# References
+
+1. Manuel, D. G. (2012). Seven more years the impact of smoking, alcohol, diet, physical
+activity and stress on health and life expectancy in Ontario: an ICES/PHO report. Institute for
+Clinical Evaluative Sciences.
+
+2. Janssen, F., Trias-Llimós, S., & Kunst, A. E. (2021). The combined impact of smoking,
+obesity, and alcohol on life-expectancy trends in Europe. International Journal of
+Epidemiology, 50(3), 931–941. https://doi.org/10.1093/ije/dyaa273
+
+3. Östergren, O., Martikainen, P., Tarkiainen, L., Elstad, J. I., & Brønnum-Hansen, H. (2019).
+Contribution of smoking and alcohol consumption to income differences in life expectancy:
+evidence using Danish, Finnish, Norwegian and Swedish register data. Journal of
+Epidemiology and Community Health (1979), 73(4), 334–339. https://doi.org/10.1136/jech2018-211640
+
+4. Kunzmann AT, Coleman HG, Huang WY, Berndt SI (2018) The association of lifetime
+alcohol use with mortality and cancer risk in older adults: A cohort study. PLOS Medicine
+15(6): e1002585. https://doi.org/10.1371/journal.pmed.1002585
+
+5. Lawrence, E. M., Rogers, R. G., & Wadsworth, T. (2015). Happiness and longevity in the United States. Social science & medicine (1982), 145, 115–119. https://doi.org/10.1016/j.socscimed.2015.09.020
+
+6. Smoking Rates by Country 2021:
+https://worldpopulationreview.com/country-rankings/smoking-rates-by-country
+
+7. Alcohol consumption per capita per year (litres of pure alcohol):
+https://data.worldbank.org/indicator/SH.ALC.PCAP.LI
+
+8. Life Expectancy at Birth (in years):
+https://data.worldbank.org/indicator/SP.DYN.LE00.IN
+
+9. World Happiness Report 2019:
+https://www.kaggle.com/datasets/unsdsn/world-happiness
+
+10. Country to Continent Dataset:
+https://raw.githubusercontent.com/dbouquin/IS_608/master/NanosatDB_munging/Countries-Continents.csv

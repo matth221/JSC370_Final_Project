@@ -1,7 +1,7 @@
 ---
-title: "JSC370 Midterm Project"
+title: "JSC370 Final Project"
 author: "Christopher Matthew"
-date: '2022-02-28'
+date: '2022-04-21'
 output:
   pdf_document:
     template: template.tex
@@ -35,6 +35,11 @@ library(car)
 library(mgcv)
 library(gridExtra)
 library(plotly)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(gbm)
+library(xgboost)
 ```
 
 # Introduction
@@ -149,6 +154,7 @@ In the end, we will proceed with fitting a linear model to see our result and pe
 
 ## Machine Learning
 
+We Will also try to fit Regression Tree, Bagging, and Random Forest with our dataset and calculate each of the test MSE for each of the method. We will then compare them to find which model fits the best for our dataset.
 
 # Results
 
@@ -195,6 +201,7 @@ plot(residual ~ happiness, main="Residuals vs Happiness", xlab="Happiness Index"
 qqline(residual)
 qqnorm(residual)
 ```
+
 ```{r, echo = FALSE, message = FALSE, warning = FALSE, include = FALSE}
 vif(model)
 boxCox(model)
@@ -252,62 +259,73 @@ tibble(Model = c('No Splines', 'Percentage of Smokers only', 'Average Alcohol Co
 
 ## Machine Learning
 
-## Data Exploration
+From the figure below, we obtain the Regression Tree before Optimal CP Pruning and after Optimal CP Pruning. Since our dataset is small, the cutoff is generally very close to the root which causes the height of the tree after pruning to become 2.
 
-### Code {.tabset}
-
-#### 3D Scatterplot Between the Predictors Per Country
-```{r, warning = FALSE, message = FALSE}
-combined_dataset %>% 
-  plot_ly(x = ~smokepercentage, y = ~alcohol_consumption, z = ~happiness,
-          type = 'scatter3d', mode = 'markers', color = ~Country,
-          hoverinfo = 'text',
-          text = ~paste( paste(Country, ":", sep=""), paste(" Smoking Rates: ", smokepercentage, sep="") , paste(" Average Alcohol Consumption: ", 
-                        alcohol_consumption, sep=""), paste(" Happiness Index: ", happiness, sep=""), sep = "<br>")) %>% 
-  layout(title = "Smoking Rates, Average Alcohol Consumption, and Happiness Around the World",
-         yaxis = list(title = "Average Alcohol Consumption"), xaxis = list(title = "Smoking Rates"), 
-         hovermode = "compare")
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.cap = "Regression Tree before Optimal CP Pruning"}
+set.seed(314)
+n <- floor(0.7 * nrow(combined_dataset))
+sample <- sample.int(n = nrow(combined_dataset), size = floor(.7*nrow(combined_dataset)), replace = F)
+train <- combined_dataset[sample,]
+test <- combined_dataset[-sample,]
+treefit <- rpart(life_expectancy_at_birth ~ smokepercentage + alcohol_consumption + happiness, method = "anova", control = list(cp=0), data = train)
+rpart.plot(treefit)
 ```
 
-#### 3D Scatterplot Between the Predictors Per Continent
-```{r, warning = FALSE, message = FALSE}
-combined_dataset %>% 
-  plot_ly(x = ~smokepercentage, y = ~alcohol_consumption, z = ~happiness,
-          type = 'scatter3d', mode = 'markers', color = ~Continent,
-          hoverinfo = 'text',
-          text = ~paste( paste(Country, ":", sep=""), paste(" Smoking Rates: ", smokepercentage, sep="") , paste(" Average Alcohol Consumption: ", 
-                        alcohol_consumption, sep=""), paste(" Happiness Index: ", happiness, sep=""), sep = "<br>")) %>% 
-  layout(title = "Smoking Rates, Average Alcohol Consumption, and Happiness Around the World",
-         yaxis = list(title = "Average Alcohol Consumption"), xaxis = list(title = "Smoking Rates"), 
-         hovermode = "compare")
+```{r, echo = FALSE, message = FALSE, warning = FALSE, include = FALSE}
+plotcp(treefit)
+printcp(treefit)
+optimalcp <- 0.15176
+treepruned <- prune(treefit, cp = optimalcp)
+summary(treepruned)
 ```
 
-#### 3D Scatterplot + Size for Life Expectancy Per Country
-```{r, warning = FALSE, message = FALSE}
-combined_dataset %>% 
-  plot_ly(x = ~smokepercentage, y = ~alcohol_consumption, z = ~happiness,
-          type = 'scatter3d', mode = 'markers', color = ~Country,
-          size = ~life_expectancy_at_birth, sizes = c(5, 30), marker = list(sizemode='diameter', opacity=0.5),
-          hoverinfo = 'text',
-          text = ~paste( paste(Country, ":", sep=""), paste(" Smoking Rates: ", smokepercentage, sep="") , paste(" Average Alcohol Consumption: ", 
-                        alcohol_consumption, sep=""), paste(" Happiness Index: ", happiness, sep=""), sep = "<br>")) %>% 
-  layout(title = "Smoking Rates, Average Alcohol Consumption, and Happiness Around the World",
-         yaxis = list(title = "Average Alcohol Consumption"), xaxis = list(title = "Smoking Rates"), 
-         hovermode = "compare")
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, fig.cap = "Regression Tree after Optimal CP Pruning"}
+rpart.plot(treepruned)
 ```
 
-#### 3D Scatterplot + Size for Life Expectancy Per Continent
-```{r, warning = FALSE, message = FALSE}
-combined_dataset %>% 
-  plot_ly(x = ~smokepercentage, y = ~alcohol_consumption, z = ~happiness,
-          type = 'scatter3d', mode = 'markers', color = ~Continent,
-          size = ~life_expectancy_at_birth, sizes = c(5, 30), marker = list(sizemode='diameter', opacity=0.5),
-          hoverinfo = 'text',
-          text = ~paste( paste(Country, ":", sep=""), paste(" Smoking Rates: ", smokepercentage, sep="") , paste(" Average Alcohol Consumption: ", 
-                        alcohol_consumption, sep=""), paste(" Happiness Index: ", happiness, sep=""), sep = "<br>")) %>% 
-  layout(title = "Smoking Rates, Average Alcohol Consumption, and Happiness Around the World",
-         yaxis = list(title = "Average Alcohol Consumption"), xaxis = list(title = "Smoking Rates"), 
-         hovermode = "compare")
+As expected, the test MSE for regression tree is higher than our original linear model since we only use a single categorical divider into a continuous variable which causes the data to be splitted very unevenly which causes higher average MSE.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE, include = F}
+tree_pred <- predict(treepruned, test)
+test_tree <- cbind(test, tree_pred)
+
+tree_mse <- sum((test_tree$tree_pred - test_tree$life_expectancy_at_birth)^2)/dim(test_tree)[1]
+tree_mse
+
+lm_pred <- predict(model, test)
+test_lm <- cbind(test, lm_pred)
+
+lm_mse <- sum((test_lm$lm_pred - test_lm$life_expectancy_at_birth)^2)/31
+lm_mse
+```
+
+Similarly, for our bagging and random forest, we obtain that happiness is the most important factor and since there only exists 3 different features, the test MSE for these methods are also bigger than the MSE for our original linear model. We will show the figures in detail in the following summary.
+
+```{r, echo=FALSE, eval=FALSE, warning=FALSE}
+bag <- randomForest(life_expectancy_at_birth ~ smokepercentage + alcohol_consumption + happiness, data = train, mtry=3, na.action = na.omit)
+varImpPlot(bag, n.var = 3, col = "red")
+```
+```{r, echo=FALSE, eval=FALSE, warning=FALSE, include = F}
+rf <- randomForest(life_expectancy_at_birth ~ smokepercentage + alcohol_consumption + happiness, data = train, na.action = na.omit)
+varImpPlot(rf, n.var = 3, col = "red")
+
+bag_pred <- predict(bag, test)
+
+bag_tree <- cbind(test, bag_pred)
+
+bag_mse <- mean((bag_pred - test$life_expectancy_at_birth)^2)
+
+bag_mse
+
+rf_pred <- predict(rf, test)
+
+rf_tree <- cbind(test, rf_pred)
+
+rf_mse <- mean((rf_pred - test$life_expectancy_at_birth)^2)
+
+rf_mse
 ```
 
 # Conclusion
@@ -333,6 +351,16 @@ average will result in increase of 2.3 million units of Life Expectancy^5 and in
 | happiness | 7.3 * 10^8 | 10^-16 | *** |
 _Table 3: Model Summary_
 
+We also compared multiple methods of predicting the value of Life Expectancy which includes Linear Model, Regression Tree, Bagging, and Random Forest. As we can see, the lowest MSE belongs to the normal linear model and this is expected since the number of observation that we have is limited and there is also a low number of predictors which makes linear regression one of the best option.
+
+| Method | Test MSE 
+|:----|:----
+| Linear Model | 28.73
+| Regression Tree | 17.12
+| Bagging | 20.34
+| Random Forest | 21.08
+_Table 4: Test MSE Comparison_
+
 
 ## Limitation and Strengths
 
@@ -350,7 +378,7 @@ subsets. Finally, our final model has moderate Adjusted R^2 and very low p-value
 
 We can improve our research by collecting a smaller cluster of data (smaller groups instead of
 countries) and gathering scientifically proven predictors that affect life expectancy significantly
-to allow better model selection and reduce variance of data.
+to allow better model selection and reduce variance of data. We can also improve our data by including more resources about the country to create an interactive map.
 
 \newpage
 
