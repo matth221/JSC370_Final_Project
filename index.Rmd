@@ -15,6 +15,8 @@ library(dplyr)
 library(car)
 library(mgcv)
 library(gridExtra)
+library(plotly)
+library(leaflet)
 ```
 
 # Introduction
@@ -53,7 +55,7 @@ Each of these datasets are taken from year 2018 for consistency. We will also us
 
 ## Data Wrangling
 
-To begin with, I imported several libraries that I am going to use for the data analysis which includes tidyverse, dplyr, mgcv, and car ??????????????. After collecting the data from the sources containing similar time stamp, I used read.csv method to save the dataset into the environment data. The datasets are labeled as smoking, alcohol, happiness, continent, and life_expectancy. Then, for each of the dataset, I only selected the country column and the value index column for smokepercentage, alcohol_consumption, happiness and life_expectancy_at_birth respectively, all from year 2018 for consistency, and remove other unnecessary columns. This is done with the help of subset and colnames function from the base R package.
+To begin with, I imported several libraries that I am going to use for the data analysis which includes tidyverse, dplyr, mgcv, car, gridExtra, plotly, and leaflet. After collecting the data from the sources containing similar time stamp, I used read.csv method to save the dataset into the environment data. The datasets are labeled as smoking, alcohol, happiness, continent, and life_expectancy. Then, for each of the dataset, I only selected the country column and the value index column for smokepercentage, alcohol_consumption, happiness and life_expectancy_at_birth respectively, all from year 2018 for consistency, and remove other unnecessary columns. This is done with the help of subset and colnames function from the base R package.
 
 Next, for each of the datasets, I removed any missing values because imputing the values with median or mean is not suitable given that our information is limited. Next, I remove outliers for each of the datasets using my own defined outliers function which removes anything above or below the upper or lower quartile ± 1.5 Interquartile Range. In the end, I combined all of the datasets into a combined dataset grouped by each country using the group_by function and remove any countries that does not contain all three information. During each step, I also make sure that everything is going according to the plan by looking at the summaries and environment tab.
 
@@ -225,25 +227,86 @@ Following our model selection, we fit multiple models with cubic regression spli
 
 ```{r, fig.cap= "Adjusted R^2 for Linear Models With/Without Cubic Regression Splines on the Predictors"}
 tibble(Model = c('No Splines', 'Percentage of Smokers only', 'Average Alcohol Consumption only', 'Happiness only'),
-       `Adjusted R-Squared` = c(0.6964, 0.696, 0.696, 0.696)) %>%
+       `Adjusted R-Squared` = c(0.6964, 0.6961, 0.6963, 0.6962)) %>%
        knitr::kable(caption = "Adjusted R^2 for Linear Models With/Without Cubic Regression Splines on the Predictors")
 ```
 
-<!-- ## Data Exploration -->
+## Data Exploration {.tabset}
 
-<!-- ```{r} -->
-<!-- aggregate_continent <- combined_dataset %>% -->
-<!--   group_by(Continent) %>% -->
-<!--   summarize(smokepercentage = mean(smokepercentage), -->
-<!--             alcohol_consumption = mean(alcohol_consumption), -->
-<!--             happiness = mean(happiness), -->
-<!--             life_expectancy = mean(life_expectancy_at_birth)) -->
+### 3D Scatterplot Between the Predictors Per Country
+```{r, warning = FALSE, message = FALSE}
+combined_dataset %>% 
+  plot_ly(x = ~smokepercentage, y = ~alcohol_consumption, z = ~happiness,
+          type = 'scatter3d', mode = 'markers', color = ~Country,
+          hoverinfo = 'text',
+          text = ~paste( paste(Country, ":", sep=""), paste(" Smoking Rates: ", smokepercentage, sep="") , paste(" Average Alcohol Consumption (Pure Litres Per Year): ", 
+                        alcohol_consumption, sep=""), paste(" Happiness Index: ", happiness, sep=""), sep = "<br>")) %>% 
+  layout(title = "Smoking Rates, Average Alcohol Consumption, and Happiness Around the World",
+         yaxis = list(title = "Average Alcohol Consumption (Pure Litres Per Year)"), xaxis = list(title = "Smoking Rates"), 
+         hovermode = "compare")
+```
 
-<!-- aggregate_continent %>% -->
-<!--   ggplot(aes(x = )) -->
-<!-- ``` -->
+### 3D Scatterplot Between the Predictors Per Continent
+```{r, warning = FALSE, message = FALSE}
+combined_dataset %>% 
+  plot_ly(x = ~smokepercentage, y = ~alcohol_consumption, z = ~happiness,
+          type = 'scatter3d', mode = 'markers', color = ~Continent,
+          hoverinfo = 'text',
+          text = ~paste( paste(Country, ":", sep=""), paste(" Smoking Rates: ", smokepercentage, sep="") , paste(" Average Alcohol Consumption (Pure Litres Per Year): ", 
+                        alcohol_consumption, sep=""), paste(" Happiness Index: ", happiness, sep=""), sep = "<br>")) %>% 
+  layout(title = "Smoking Rates, Average Alcohol Consumption, and Happiness Around the World",
+         yaxis = list(title = "Average Alcohol Consumption (Pure Litres Per Year)"), xaxis = list(title = "Smoking Rates"), 
+         hovermode = "compare")
+```
 
+### 3D Scatterplot + Size for Life Expectancy Per Country
+```{r, warning = FALSE, message = FALSE}
+combined_dataset %>% 
+  plot_ly(x = ~smokepercentage, y = ~alcohol_consumption, z = ~happiness,
+          type = 'scatter3d', mode = 'markers', color = ~Country,
+          size = ~life_expectancy_at_birth, sizes = c(5, 30), marker = list(sizemode='diameter', opacity=0.5),
+          hoverinfo = 'text',
+          text = ~paste( paste(Country, ":", sep=""), paste(" Smoking Rates: ", smokepercentage, sep="") , paste(" Average Alcohol Consumption (Pure Litres Per Year): ", 
+                        alcohol_consumption, sep=""), paste(" Happiness Index: ", happiness, sep=""), sep = "<br>")) %>% 
+  layout(title = "Smoking Rates, Average Alcohol Consumption, and Happiness Around the World",
+         yaxis = list(title = "Average Alcohol Consumption (Pure Litres Per Year)"), xaxis = list(title = "Smoking Rates"), 
+         hovermode = "compare")
+```
+
+### 3D Scatterplot + Size for Life Expectancy Per Continent
+```{r, warning = FALSE, message = FALSE}
+combined_dataset %>% 
+  plot_ly(x = ~smokepercentage, y = ~alcohol_consumption, z = ~happiness,
+          type = 'scatter3d', mode = 'markers', color = ~Continent,
+          size = ~life_expectancy_at_birth, sizes = c(5, 30), marker = list(sizemode='diameter', opacity=0.5),
+          hoverinfo = 'text',
+          text = ~paste( paste(Country, ":", sep=""), paste(" Smoking Rates: ", smokepercentage, sep="") , paste(" Average Alcohol Consumption (Pure Litres Per Year): ", 
+                        alcohol_consumption, sep=""), paste(" Happiness Index: ", happiness, sep=""), sep = "<br>")) %>% 
+  layout(title = "Smoking Rates, Average Alcohol Consumption, and Happiness Around the World",
+         yaxis = list(title = "Average Alcohol Consumption (Pure Litres Per Year)"), xaxis = list(title = "Smoking Rates"), 
+         hovermode = "compare")
+```
 \newpage
+
+## Description {.tabset}
+
+Description for each of the visualizations above.
+
+### 3D Scatterplot Between the Predictors Per Country
+
+This plot shows the value of each predictor variable for every country which includes the smoking rates, average alcohol consumption (Pure Litres Per Year), and happiness index.
+
+### 3D Scatterplot Between the Predictors Per Continent
+
+This plot shows the value of each predictor variable for every continent which includes the smoking rates, average alcohol consumption (Pure Litres Per Year), and happiness index.
+
+### 3D Scatterplot + Size for Life Expectancy Per Country
+
+This plot shows the value of smoking rates, average alcohol consumption (Pure Litres Per Year), and happiness index for every country and each point size is represented by the life expectancy at birth of the country. Generally, we want to see that the country with lower smoking rates, average alcohol consumption, and happiness index will have a bigger circle radius.
+
+### 3D Scatterplot + Size for Life Expectancy Per Continent
+
+This plot shows the value of smoking rates, average alcohol consumption (Pure Litres Per Year), and happiness index for every continent and each point size is represented by the life expectancy at birth of the continent. Generally, we want to see that the continent with lower smoking rates, average alcohol consumption, and happiness index will have a bigger circle radius.
 
 # Conclusion
 
@@ -291,36 +354,7 @@ to allow better model selection and reduce variance of data.
 
 # Appendix
 
-## Appendix 1
-
-**Original Model of 2 Predictors vs Three Models of Each Predictor**
-
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
-summary(model1)
-summary(lm(life_expectancy_at_birth^5 ~ smokepercentage + happiness, data = combined_dataset))
-summary(lm(life_expectancy_at_birth^5 ~ smokepercentage + alcohol_consumption, data = combined_dataset))
-summary(lm(life_expectancy_at_birth^5 ~ alcohol_consumption + happiness, data = combined_dataset))
-summary(lm(life_expectancy_at_birth^5 ~ smokepercentage, data = combined_dataset))
-summary(lm(life_expectancy_at_birth^5 ~ alcohol_consumption, data = combined_dataset))
-summary(lm(life_expectancy_at_birth^5 ~ happiness, data = combined_dataset))
-```
-
-\newpage
-
-## Appendix 2
-
-**Final Model of 3 Predictors With/Without cubic Regression Spline on Each Predictor**
-
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
-summary(model1)
-gam_mod <- gam(life_expectancy_at_birth^5 ~ s(smokepercentage, bs = "cr") + alcohol_consumption + happiness, data = combined_dataset)
-summary(gam_mod)
-gam_mod1 <- gam(life_expectancy_at_birth^5 ~ smokepercentage + s(alcohol_consumption, bs = "cr") + happiness, data = combined_dataset)
-summary(gam_mod1)
-gam_mod2 <- gam(life_expectancy_at_birth^5 ~ smokepercentage + alcohol_consumption + s(happiness, bs = "cr"), data = combined_dataset)
-summary(gam_mod2)
-```
-\newpage
+Please refer to the Appendix in the Report.
 
 # References
 
